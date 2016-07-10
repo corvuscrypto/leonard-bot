@@ -1,0 +1,12 @@
+{
+  "name": "leonard-bot",
+  "version": "0.1.0",
+  "description": "HipChat bot",
+  "repository": "github:corvuscrypto/leonard-bot",
+  "keywords": [
+    "HipChat",
+    "Bot",
+    "Atlassian",
+    "Chat"
+  ]
+}
