@@ -8,5 +8,8 @@
     "Bot",
     "Atlassian",
     "Chat"
-  ]
+  ],
+  "dependencies": {
+    "node-xmpp-client": "latest"
+  }
 }
