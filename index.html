@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Leonard-bot by corvuscrypto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Leonard-bot</h1>
+      <h2 class="project-tagline">Leonard is a chat bot for hipchat with a depressing tone, but helpful spirit :)</h2>
+      <a href="https://github.com/corvuscrypto/leonard-bot" class="btn">View on GitHub</a>
+      <a href="https://github.com/corvuscrypto/leonard-bot/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/corvuscrypto/leonard-bot/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="leonard" class="anchor" href="#leonard" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Leonard</h1>
+
+<p>Leonard is a chat bot for hipchat with no flare. I have thus deemed him a depressing bot because he doesn't give you fancy html, just plain old messages in XMPP's text format.</p>
+
+<p>A bit of background for Leonard: One day, when the clouds were super grey and things were quite droll around the office, we had our chat bot based on another popular lib stop responding. Naturally we were saddened at the lack of life from our little buddy!</p>
+
+<p>When we investigated the core cause, it turned out that internally, the library was using the REST API for HipChat for sending all of its messages to elicit a pretty notification card. Furthermore, it turned out that initialization was near impossible because the amount of rooms we had caused him to reach the API limit before he could even get up and running.</p>
+
+<p>Then after much groveling over the sad loss of our friend, it was decided that no more will we bring a bot into the world (our servers) that could not live long and prosper!
+<code>ENTER LEONARD</code>
+While Leonard might not have all the flare of xhtml, he certainly can bolt messages across the internet! His messages, however, are still drab and remind us of our long lost friend of the good old days (07/08/2016), and so I give you Leonard: The bot with a depressing tone, but a helpful spirit!</p>
+
+<h2>
+<a id="table-of-contents" class="anchor" href="#table-of-contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Table of Contents</h2>
+
+<ul>
+<li><a href="#bringing-leonard-to-life">Bringing Leonard to life</a></li>
+<li><a href="#listening-for-messages">Listening for messages</a></li>
+<li><a href="#responding-to-messages">Responding to messages</a></li>
+<li><a href="#getting-user-info-within-a-callback">Getting user info within a callback</a></li>
+<li><a href="#plugins">Plugins</a></li>
+</ul>
+
+<h2>
+<a id="bringing-leonard-to-life" class="anchor" href="#bringing-leonard-to-life" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bringing Leonard to life</h2>
+
+<p>To bring Leonard to life, you only need to import this library and initialize a Leonard object with a JSON Object containing your jabber ID (jid) and password. Example:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> Leonard <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">"</span>leonard-bot<span class="pl-pds">"</span></span>);
+
+<span class="pl-k">var</span> bot <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Leonard</span>({
+  jid<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">'</span>example_jid@chat.hipchat.com<span class="pl-pds">'</span></span>,
+  password<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>,
+});</pre></div>
+
+<p>Leonard will automatically gather information about current rooms and users that are present on the chat. You will see the following console output during normal initialization:</p>
+
+<pre><code>Loading plugins...
+Loading options...
+Negotiating session...
+Starting Leonard...
+Getting room list...
+Joining rooms...
+Done! :)
+</code></pre>
+
+<p>After startup, Leonard will now be listening intently to your conversations.</p>
+
+<h2>
+<a id="listening-for-messages" class="anchor" href="#listening-for-messages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Listening for messages</h2>
+
+<p>Leonard uses RegExp to listen for specific messages. Leonard can also distinguish between mentions and normal
+groupchat messages. If you wish to listen for a groupchat message, you can use the <code>onMessage</code> method. For mentions, use
+<code>onMention</code>. Both of these methods require the params <code>(regex|string, callback)</code> where callback has the function signature
+of <code>function(client, message, [params])</code>. Note that <code>params</code> is optional</p>
+
+<p>For the callback, <code>client</code> is the bot object, <code>message</code> is the Message object created on receipt of the message, and <code>params</code>
+are the array of captures from the RegExp used (if available).</p>
+
+<p>An example of a message handler that prints out a user's name after a "Hello my name is _____" message:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">bot</span>.<span class="pl-en">onMessage</span>(<span class="pl-sr"><span class="pl-pds">/</span>Hello my name is (<span class="pl-c1">.</span><span class="pl-k">*</span>)<span class="pl-pds">/</span>i</span>, <span class="pl-k">function</span>(<span class="pl-smi">client</span>, <span class="pl-smi">message</span>, <span class="pl-smi">params</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(params[<span class="pl-c1">0</span>]);
+});</pre></div>
+
+<h2>
+<a id="responding-to-messages" class="anchor" href="#responding-to-messages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Responding to messages</h2>
+
+<p>Leonard would be pretty useless if he couldn't talk back to people. In order to respond to messages that you listen for,
+you must use the <code>client.send(message)</code> method. The following echoes back whatever message Leonard hears:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">bot</span>.<span class="pl-en">onMessage</span>(<span class="pl-sr"><span class="pl-pds">/</span><span class="pl-c1">.</span><span class="pl-k">*</span><span class="pl-pds">/</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">client</span>, <span class="pl-smi">message</span>){
+  <span class="pl-smi">client</span>.<span class="pl-c1">send</span>(message);
+});</pre></div>
+
+<p>However this is a bit boring. If we want to respond with our own message, we can choose to reply to the room the message
+was received from with a general message, or we can have Leonard mention the user that sent the received message. Either
+case is easy since each Message object has the methods <code>newResponse(content)</code> and <code>newReply(content)</code>. If you want to
+send a general message back to the room, use <code>message.newResponse(content)</code> to construct a new message. If you want to
+mention the original sender, use <code>message.newReply(content)</code>. Finally, to send the reply we again use <code>client.send(newMessage)</code>.</p>
+
+<p>Putting it all together, the following code creates a handler for <code>good morning</code> messages and responds to the user
+with a polite <code>@user_mention_name Good morning! How are you?</code></p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">bot</span>.<span class="pl-en">onMessage</span>(<span class="pl-sr"><span class="pl-pds">/</span>good morning<span class="pl-pds">/</span>i</span>, <span class="pl-k">function</span>(<span class="pl-smi">client</span>, <span class="pl-smi">message</span>){
+  <span class="pl-smi">client</span>.<span class="pl-c1">send</span>(<span class="pl-smi">message</span>.<span class="pl-en">newReply</span>(<span class="pl-s"><span class="pl-pds">"</span>Good morning! How are you?<span class="pl-pds">"</span></span>));
+});</pre></div>
+
+<p>You can also, of course, create your own Message object for sending which allows you to specify a room.
+This is useful if you wish to perform broadcasts in a different room than that in which the message was received.</p>
+
+<h2>
+<a id="getting-user-info-within-a-callback" class="anchor" href="#getting-user-info-within-a-callback" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting user info within a callback</h2>
+
+<p>If you wish to access user info, Leonard stores users within the <code>users</code> attribute. The <code>users</code> attribute on a Leonard
+bot is stored as map[userJID]userObject where userObject contains the user's JID, nickname, and mention name.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">//example user bot.users["123456_jid@chat.hipchat.com"]</span>
+{
+  <span class="pl-s"><span class="pl-pds">"</span>jid<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>123456_jid@chat.hipchat.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>nick<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Jimmy Smith<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>mentionName<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>JSmith<span class="pl-pds">"</span></span>
+}</pre></div>
+
+<p>Since the bot object reference is passed into the callback for a message handler, you can easily retrieve user information
+at any time when handling a message.</p>
+
+<h2>
+<a id="plugins" class="anchor" href="#plugins" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Plugins</h2>
+
+<p>Leonard can use plugins which are registered upon instantiation of the leonard-bot <code>Plugin</code> object.
+The following registers a plugin module names "test" and adds a general listener for a hello message:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> Leonard <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">"</span>leonard-bot<span class="pl-pds">"</span></span>);
+<span class="pl-k">var</span> <span class="pl-c1">Plugin</span> <span class="pl-k">=</span> <span class="pl-smi">Leonard</span>.<span class="pl-smi">Plugin</span>;
+
+<span class="pl-k">var</span> testPlugin <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Plugin</span>(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>)
+<span class="pl-smi">testPlugin</span>.<span class="pl-en">onMessage</span>(<span class="pl-sr"><span class="pl-pds">/</span>hello<span class="pl-pds">/</span>i</span>, <span class="pl-k">function</span>(<span class="pl-smi">client</span>, <span class="pl-smi">message</span>){
+  <span class="pl-smi">client</span>.<span class="pl-c1">send</span>(<span class="pl-smi">message</span>.<span class="pl-en">newResponse</span>(<span class="pl-s"><span class="pl-pds">"</span>Hello!<span class="pl-pds">"</span></span>));
+})
+<span class="pl-smi">testPlugin</span>.<span class="pl-en">onMention</span>(<span class="pl-sr"><span class="pl-pds">/</span>hello<span class="pl-pds">/</span>i</span>, <span class="pl-k">function</span>(<span class="pl-smi">client</span>, <span class="pl-smi">message</span>){
+  <span class="pl-smi">client</span>.<span class="pl-c1">send</span>(<span class="pl-smi">message</span>.<span class="pl-en">newReply</span>(<span class="pl-s"><span class="pl-pds">"</span>sup<span class="pl-pds">"</span></span>));
+})
+
+<span class="pl-k">var</span> l <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Leonard</span>({
+  jid<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">'</span>example_jid@chat.hipchat.com<span class="pl-pds">'</span></span>,
+  password<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>password<span class="pl-pds">'</span></span>,
+});</pre></div>
+
+<p>Easy as that. By instantiating a new plugin object Leonard will automatically add it to its registry. By typing <code>hello</code> into your HipChat client, Leonard will perform a general reply with <code>Hello!</code>. However, by mentioning him using <code>@mention_name hello</code> he will now respond with <code>@your_name sup</code>, thus replying directly to you.</p>
+
+<p>Plugins should be preferred because it promotes modularization rather than monolithic code development. If you wish
+to place your plugins into a folder with separate files instead, you can specify a plugin folder for Leonard by setting
+the <code>pluginDir</code> option when initializing the bot. This will cause all proper plugins to be automatically loaded into
+the registry upon initializing the bot.</p>
+
+<p><strong>Note that any plugins registered after the bot is initialized will not be active.</strong></p>
+
+<h2>
+<a id="api-reference" class="anchor" href="#api-reference" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API reference</h2>
+
+<p>TODO</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/corvuscrypto/leonard-bot">Leonard-bot</a> is maintained by <a href="https://github.com/corvuscrypto">corvuscrypto</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
